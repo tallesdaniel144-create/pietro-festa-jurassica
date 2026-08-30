@@ -290,6 +290,17 @@ footer .heart{color:var(--red);display:inline-block;animation:beat 1.4s ease-in-
 </style>
 </head>
 <body>
+<div id="enterOverlay" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(135deg,#1a4d2e 0%,#2d6a3f 50%,#1a4d2e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-family:system-ui,sans-serif;color:#fff;text-align:center;padding:20px;">
+  <div style="font-size:clamp(60px,15vw,120px);margin-bottom:20px;animation:bounce 2s infinite;">🦖</div>
+  <h1 style="font-size:clamp(28px,6vw,48px);margin:0 0 15px 0;font-weight:800;text-shadow:2px 2px 4px rgba(0,0,0,0.3);">Festa Jurássica do Pietro</h1>
+  <p style="font-size:clamp(18px,4vw,28px);margin:0 0 30px 0;opacity:0.95;">Clique em qualquer lugar para entrar</p>
+  <div style="font-size:clamp(40px,8vw,60px);animation:pulse 1.5s infinite;">👆</div>
+  <style>
+    @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.7;transform:scale(1.1);} }
+  </style>
+</div>
+
 <audio id="bgAudio" loop preload="auto" src="music.mp3" playsinline preload="auto"></audio>
 
 <!-- ============ DECOR ============ -->
@@ -908,6 +919,50 @@ document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ document.querySe
 
 
 (function(){var b=document.getElementById('musicBtn');var a=document.getElementById('bgAudio');if(!b||!a)return;var playing=false;var tried=false;function setIcon(){var ic=document.getElementById('musicIcon');if(!ic)return;ic.innerHTML=playing?'<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>':'<path d="M3 9v6h4l5 5V4L7 9H3zm18 .5L19.5 8 17 10.5 14.5 8 13 9.5 15.5 12 13 14.5 14.5 16 17 13.5 19.5 16 21 14.5 18.5 12z"/>';}function setState(p){playing=p;b.classList.toggle('muted',!p);setIcon();}setState(false);function tryPlay(){if(playing)return;var p=a.play();if(p&&p.then){p.then(function(){setState(true);}).catch(function(){});}else{setState(true);}}function tryPause(){a.pause();setState(false);}b.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();if(playing){tryPause();}else{tryPlay();}});a.addEventListener('play',function(){setState(true);});a.addEventListener('pause',function(){setState(false);});function firstInteract(){tryPlay();['click','touchstart','keydown','scroll','pointerdown'].forEach(function(ev){document.removeEventListener(ev,firstInteract,true);});}['click','touchstart','keydown','scroll','pointerdown'].forEach(function(ev){document.addEventListener(ev,firstInteract,true);});})();
+</script>
+
+<script>
+(function(){
+  var overlay = document.getElementById('enterOverlay');
+  var audio = document.getElementById('bgAudio');
+  if(!overlay || !audio) return;
+
+  function enterSite(){
+    // Toca a musica
+    var playPromise = audio.play();
+    if(playPromise !== undefined){
+      playPromise.then(function(){
+        console.log('Musica tocando!');
+      }).catch(function(err){
+        console.log('Erro ao tocar:', err);
+      });
+    }
+
+    // Atualiza o botao de musica
+    var btn = document.getElementById('musicBtn');
+    if(btn){
+      btn.classList.remove('muted');
+      var icon = document.getElementById('musicIcon');
+      if(icon){
+        icon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/>';
+      }
+    }
+
+    // Remove o overlay com fade
+    overlay.style.transition = 'opacity 0.5s';
+    overlay.style.opacity = '0';
+    setTimeout(function(){
+      overlay.remove();
+    }, 500);
+
+    // Remove os listeners
+    overlay.removeEventListener('click', enterSite);
+    overlay.removeEventListener('touchstart', enterSite);
+  }
+
+  overlay.addEventListener('click', enterSite);
+  overlay.addEventListener('touchstart', enterSite);
+})();
 </script>
 </body>
 </html><!-- deploy-bust- -->
